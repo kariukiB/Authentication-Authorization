@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/security
+    username: kariuki
+    password: Password1!
+  jpa:
+    hibernate:
+      ddl-auto: update
+  application:
+    name: security
+application:
+  config:
+    key: SGVsbG8gZGFya25lc3MgbXkgZnJpZW5kIEkgY29tZSB0byBzcGVhayB3aXRoIHlvdSBhZ2Fpbg==
