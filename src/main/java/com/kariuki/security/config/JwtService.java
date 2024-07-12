@@ -18,13 +18,13 @@ public class JwtService {
     public String generateToken(User user, Map<String, Object> extraClaims) {
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date(issuedAt.getTime() + (30* 60 * 1000));
-        JwtBuilder builder = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(user.getUsername())
                 .setClaims(extraClaims)
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiration)
-                .signWith(generateKey(), SignatureAlgorithm.HS256);
-                return builder.compact();
+                .signWith(generateKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Key generateKey() {
@@ -33,32 +33,15 @@ public class JwtService {
     }
 
     public String extractUsername(String jwtToken) {
-        Claims claims = parseToken(jwtToken);
-        if (claims != null) {
-            return claims.getSubject();
-        } else {
-            System.out.println("Claims are null; cannot extract username.");
-            return null;
-        }
+       return parseToken(jwtToken).getSubject();
     }
 
     public Claims parseToken(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            System.out.println("Token has expired: " + e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            System.out.println("Unsupported JWT: " + e.getMessage());
-        } catch (MalformedJwtException e) {
-            System.out.println("Malformed JWT: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.out.println("JWT claims string is empty: " + e.getMessage());
-        }
-        return null;
+        return Jwts.parserBuilder()
+                .setSigningKey(generateKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
 }

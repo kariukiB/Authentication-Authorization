@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -23,19 +24,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             System.out.println("Authorization header is missing or does not start with Bearer.");
+            logAllHeaders(request);
             filterChain.doFilter(request, response);
             return;
         }
 
         String jwtToken = authHeader.substring(7);
         System.out.println("JWT Token: " + jwtToken);
-        String username = " ";
+        String username = null;
 
         try {
             Claims claims = jwtService.parseToken(jwtToken);
@@ -72,6 +73,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("Authentication successful for user: " + user.getUsername());
 
         filterChain.doFilter(request, response);
+    }
+
+    private void logAllHeaders(HttpServletRequest request) {
+        System.out.println("Logging all request headers:");
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            System.out.println(headerName + ": " + headerValue);
+        }
     }
 
 
